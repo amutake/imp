@@ -1,6 +1,7 @@
 module Imp.Eval where
 
-import Prelude hiding (lookup)
+import Prelude hiding (lookup, id)
+import Data.List (intercalate)
 import Control.Applicative ((<$>))
 import Control.Monad (when)
 
@@ -25,8 +26,28 @@ eval env (Apply expr args) = do
             funenv <- consNewFun env' (zip idents args')
             result <- run funenv body
             maybe (return Undefined) return result
+        PrimFunc prim -> do
+            args' <- mapM (eval env) args
+            return (primEval prim args')
         _ -> error "it must be function"
 eval env (Id id) = lookup env id
+
+primEval :: Prim -> [Value] -> Value
+primEval Not [BoolVal b] = BoolVal (not b)
+primEval NumToStr [NumberVal n] = StringVal (show n)
+primEval BoolToStr [BoolVal b] = StringVal (show (BoolVal b))
+primEval IsNum [NumberVal _] = BoolVal True
+primEval IsNum [_] = BoolVal False
+primEval IsBool [BoolVal _] = BoolVal True
+primEval IsBool [_] = BoolVal False
+primEval IsStr [StringVal _] = BoolVal True
+primEval IsStr [_] = BoolVal False
+primEval Length [StringVal s] = NumberVal (fromInteger (toInteger (length s)))
+primEval prim args = error $ concat
+                     [ "invalid arguments: "
+                     , show prim
+                     , "(" ++ intercalate "," (map show args) ++ ")"
+                     ]
 
 opEval :: Op -> Value -> Value -> Value
 opEval op value1 value2 = opEval' op value1 value2
@@ -48,11 +69,11 @@ opEval op value1 value2 = opEval' op value1 value2
     opEval' Gt (NumberVal n1) (NumberVal n2) = BoolVal (n1 > n2)
     opEval' Ge (NumberVal n1) (NumberVal n2) = BoolVal (n1 >= n2)
     opEval' App (StringVal s1) (StringVal s2) = StringVal (s1 ++ s2)
-    opEval _ _ _ = error $ concat
-                   [ "wrong type of arguments ("
+    opEval' _ _ _ = error $ concat
+                   [ "wrong type of arguments: "
                    , show value1
                    , " " ++ show op ++ " "
-                   , show value2 ++ ")"
+                   , show value2
                    ]
 
 step :: Env -> Statement -> IO (Maybe Value)
