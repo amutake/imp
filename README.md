@@ -12,8 +12,8 @@ Example
 
 ```javascript
 // comment
-x = 0; // declare variable, number literal
-f = fun(x, y) { // function literal
+var x = 0; // declare variable, number literal
+var f = fun(x, y) { // function literal
   return x + y; // return statement
 };
 if (x == 0) { // if statement (not expression)
