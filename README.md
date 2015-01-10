@@ -71,7 +71,7 @@ BNF
 
 <constant> ::= <integer or float>
              | true | false
-             | "(.*\")"
+             | " <any char without ">* "
 
 <identifier> ::= [a-z][a-zA-Z_0-9'!?]*
 
