@@ -12,17 +12,17 @@ Example
 
 ```javascript
 // comment
-var x = 0; // declare variable, number literal
-var f = fun(x, y) { // function literal
-  return x + y; // return statement
+var x = 0;                // declare variable, number literal
+var f = fun(x, y) {       // function literal
+  return x + y;           // return statement
 };
-if (x == 0) { // if statement (not expression)
+if (x != 0) {             // if statement (not expression)
   print "assert false\n"; // print, string literal
 } else {
-  while (x < 10) { // while statement
-    x = x + 1; // reassignment
+  while (x < 10) {        // while statement
+    x = x + 1;            // assignment
   }
-  print x;
+  print f(x, 10);         // function application
 }
 ```
 
