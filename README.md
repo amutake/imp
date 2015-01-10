@@ -61,16 +61,17 @@ BNF
                | fun(<identifiers>) { <statement>* }
                | <expression> <operator> <expression>
                | <expression>(<expressions>)
+               | <identifier>
 
 <expressions> ::= <expression>, <expression>, ..., <expression>
 
 <identifiers> ::= <identifier>, <identifier>, ..., <identifier>
 
-<constant> ::= [0-9\.?0-9*]
+<constant> ::= <integer or float>
              | true | false
              | "(.*\")"
 
-<identifier> ::= [a-z][a-zA-Z_0-9'!?]
+<identifier> ::= [a-z][a-zA-Z_0-9'!?]*
 
 <operator> ::= == | !=
              | && | ||
