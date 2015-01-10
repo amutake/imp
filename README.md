@@ -5,13 +5,13 @@ This is a simple imperative language for learning Haskell.
 
 The documents are written in Japanese.
 
-Examples
---------
+Example
+-------
 
 ```javascript
 // comment
-var x = 0; // declare variable, number
-var f = fun(x, y) { // function literal
+x = 0; // declare variable, number literal
+f = fun(x, y) { // function literal
   return x + y; // return statement
 };
 if (x == 0) { // if statement (not expression)
