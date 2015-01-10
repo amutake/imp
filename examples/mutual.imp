@@ -12,5 +12,5 @@ var odd = fun(x) {
     return even(x - 1);
   }
 };
-print even(10);
-print odd(10);
+println(even(10));
+println(odd(10));

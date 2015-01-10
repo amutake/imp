@@ -80,7 +80,6 @@ step env (While expr block) = do
         BoolVal False -> return Nothing
         _ -> error "condition of while statement must be evaluated to boolean value"
 step env (Return expr) = Just <$> eval env expr
-step env (Print expr) = eval env expr >>= print >> return Nothing
 step env (Expr expr) = eval env expr >> return Nothing
 
 run :: Env -> Program -> IO (Maybe Value)

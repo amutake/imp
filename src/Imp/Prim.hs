@@ -1,6 +1,6 @@
 module Imp.Prim where
 
-import Prelude hiding (not, length)
+import Prelude hiding (not, length, print)
 import qualified Prelude as P
 import Data.IORef
 import Data.List (intercalate)
@@ -21,6 +21,8 @@ primitives = map (\(s, f) -> (MkId s, PrimFunc f))
     , ("string?", is_string)
     , ("boolean?", is_boolean)
     , ("length", length)
+    , ("print", print)
+    , ("println", println)
     ]
   where
     primError name args = error $ concat
@@ -55,3 +57,11 @@ primitives = map (\(s, f) -> (MkId s, PrimFunc f))
 
     length [StringVal s] = number . fromInteger . toInteger . P.length $ s
     length args = primError "length" args
+
+    print args = do
+        putStr $ intercalate "," $ map show args
+        return Undefined
+
+    println args = do
+        putStrLn $ intercalate "," $ map show args
+        return Undefined

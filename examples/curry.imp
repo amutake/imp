@@ -3,4 +3,4 @@ var f = fun(x) {
     return x + y;
   };
 };
-print (f(1))(2);
+println((f(1))(2));

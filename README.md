@@ -17,12 +17,12 @@ var f = fun(x, y) {       // function literal
   return x + y;           // return statement
 };
 if (x != 0) {             // if statement (not expression)
-  print "assert false\n"; // print, string literal
+  print("assert false\n"); // print, string literal
 } else {
   while (x < 10) {        // while statement
     x = x + 1;            // assignment
   }
-  print f(x, 10);         // function application
+  print(f(x, 10));         // function application
 }
 ```
 
@@ -56,7 +56,6 @@ BNF
               | if (<expression>) { <statement>* } else { <statement>* }
               | while (<expression>) { <statement>* }
               | return <expression>;
-              | print <expression>;
               | <expression>;
 
 <expression> ::= <constant>
@@ -86,7 +85,7 @@ BNF
 Reserved idetifiers
 -------------------
 
-`var, if, else, while, return, print, fun, true, false`
+`var, if, else, while, return, fun, true, false`
 
 
 Builtin functions
@@ -99,3 +98,5 @@ Builtin functions
 - `boolean?`
 - `not`
 - `length`
+- `print`
+- `println`

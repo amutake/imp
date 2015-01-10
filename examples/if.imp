@@ -1,5 +1,5 @@
 if (0 == 0) {
-  print "true";
+  println("true");
 } else {
-  print "false";
+  println("false");
 }

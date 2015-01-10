@@ -5,4 +5,4 @@ var fact = fun(x) {
     return x * fact(x - 1);
   }
 };
-print fact(10);
+println(fact(10));

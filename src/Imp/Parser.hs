@@ -67,7 +67,6 @@ statementParser = varParser <|>
                   ifParser <|>
                   whileParser <|>
                   returnParser <|>
-                  printParser <|>
                   try assignParser <|>
                   Expr <$> exprParser <* symbol ";"
   where
@@ -83,7 +82,6 @@ statementParser = varParser <|>
                   (symbol "while" *> parens exprParser) <*>
                   braces impParser
     returnParser = Return <$> (symbol "return" *> exprParser <* symbol ";")
-    printParser = Print <$> (symbol "print" *> exprParser <* symbol ";")
 
 impParser :: Parser Program
 impParser = whiteSpace *> many statementParser

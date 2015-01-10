@@ -5,5 +5,5 @@ var makeAdder = fun(x) {
 };
 var add5 = makeAdder(5);
 var add10 = makeAdder(10);
-print add5(10);
-print add10(7);
+println(add5(10));
+println(add10(7));

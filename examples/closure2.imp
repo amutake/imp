@@ -1,6 +1,6 @@
 var f = fun() {
   return fun() {
-    print y;
+    println(y);
   };
 };
 var y = 0;

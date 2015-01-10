@@ -7,7 +7,6 @@ data Statement = Var Id Expr
                | If Expr [Statement] [Statement]
                | While Expr [Statement]
                | Return Expr
-               | Print Expr
                | Expr Expr
                deriving (Show)
 
