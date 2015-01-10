@@ -1,7 +1,7 @@
 Imp
 ===
 
-This is a simple imperative language for learning Haskell.
+This is a simple imperative language for learning/teaching Haskell.
 
 The documents are written in Japanese.
 
