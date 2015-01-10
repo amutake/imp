@@ -9,13 +9,15 @@ import Imp.Eval
 main :: IO ()
 main = do
     code <- T.getContents
-    putStrLn "====== code ======"
+    putStrLn "======== code ========"
     T.putStr code
-    putStrLn "====== end  ======"
+    putStrLn "======== end ========="
     case parseCode code of
         Left err -> print err
         Right prog -> do
-            putStrLn "finish parsing"
+            putStrLn "=== finish parsing ==="
+            putStrLn $ show prog
+            putStrLn "======== end ========="
             env <- initialEnv
             run env prog
             return ()

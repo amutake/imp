@@ -47,7 +47,8 @@ assign env ident value = do
     envList <- readIORef env
     case envList of
         Top m | M.member ident m -> writeIORef env (Top (M.insert ident value m))
-        Top m -> error "non declared identifier"
+        Top m -> case ident of
+                     MkId str -> error $ "non declared identifier '" ++ str ++ "'"
         Cons m e | M.member ident m -> writeIORef env (Cons (M.insert ident value m) e)
         Cons m e -> assign e ident value
 

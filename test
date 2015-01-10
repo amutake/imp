@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cabal build
+./dist/build/imp/imp < $1

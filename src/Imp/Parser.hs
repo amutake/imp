@@ -11,9 +11,10 @@ import Text.Parsec.Text (Parser)
 
 import Imp.Syntax
 
-infixTable :: OperatorTable Parser Expr
-infixTable =
-    [ [ op Mul "*" AssocLeft, op Div "/" AssocLeft ]
+opTable :: OperatorTable Parser Expr
+opTable =
+    [ [ Postfix (flip Apply <$> parens (commaSep exprParser)) ]
+    , [ op Mul "*" AssocLeft, op Div "/" AssocLeft ]
     , [ op Add "+" AssocLeft, op Sub "-" AssocLeft ]
     , [ op App "++" AssocRight ]
     , [ op Eq "==" AssocNone, op Neq "!=" AssocNone
@@ -26,26 +27,32 @@ infixTable =
   where
     op constr str assoc = Infix (Op constr <$ symbol str) assoc
 
-infixParser :: Parser Expr
-infixParser = buildExpressionParser infixTable $
-              parens infixParser
+opParser :: Parser Expr
+opParser = buildExpressionParser opTable $
+           try funcParser <|>
+           parens opParser <|>
+           Const <$> try constParser <|>
+           Id <$> identifierParser
 
 exprParser :: Parser Expr
-exprParser = Const <$> constParser <|>
-             funcParser <|>
-             infixParser <|>
-             applyParser <|>
+exprParser = try funcParser <|>
+             try opParser <|>
+             Const <$> try constParser <|>
              Id <$> identifierParser
 
 constParser :: Parser Const
-constParser = Number <$> double <|>
+constParser = Number <$> number <|>
               Boolean <$> boolean <|>
               String <$> stringLiteral
   where
-    boolean = True <$ symbol "true" <|> False <$ symbol "false"
+    number = toDouble <$> integerOrDouble
+    toDouble (Left n) = fromInteger n
+    toDouble (Right n) = n
+    boolean = True <$ symbol "true" <|>
+              False <$ symbol "false"
 
 identifierParser :: Parser Id
-identifierParser = MkId <$> ((:) <$> idHead <*> idTail)
+identifierParser = MkId <$> ((:) <$> idHead <*> idTail) <* whiteSpace
   where
     idHead = lower <|> char '_'
     idTail = many (alphaNum <|> oneOf "_'!?")
@@ -55,17 +62,14 @@ funcParser = Fun <$> (symbol "fun" *> args) <*> braces impParser
   where
     args = parens (commaSep identifierParser)
 
-applyParser :: Parser Expr
-applyParser = Apply <$> exprParser <*> parens (commaSep exprParser)
-
 statementParser :: Parser Statement
 statementParser = varParser <|>
                   ifParser <|>
                   whileParser <|>
                   returnParser <|>
                   printParser <|>
-                  assignParser <|>
-                  Expr <$> exprParser
+                  try assignParser <|>
+                  Expr <$> exprParser <* symbol ";"
   where
     varParser = Var <$>
                 (symbol "var" *> identifierParser <* symbol "=") <*>
@@ -81,8 +85,8 @@ statementParser = varParser <|>
     returnParser = Return <$> (symbol "return" *> exprParser <* symbol ";")
     printParser = Print <$> (symbol "print" *> exprParser <* symbol ";")
 
-impParser :: Parser [Statement]
-impParser = many statementParser
+impParser :: Parser Program
+impParser = whiteSpace *> many statementParser
 
 parseCode :: Text -> Either ParseError Program
-parseCode = parse impParser "stdin"
+parseCode = parse (impParser <* eof) "stdin"

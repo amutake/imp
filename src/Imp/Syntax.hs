@@ -9,18 +9,21 @@ data Statement = Var Id Expr
                | Return Expr
                | Print Expr
                | Expr Expr
+               deriving (Show)
 
 data Expr = Const Const
           | Fun [Id] [Statement]
           | Op Op Expr Expr
           | Apply Expr [Expr]
           | Id Id
+          deriving (Show)
 
 data Const = Number Double
            | Boolean Bool
            | String String
+           deriving (Show)
 
-data Id = MkId String deriving (Eq, Ord)
+data Id = MkId String deriving (Eq, Ord, Show)
 
 data Op = Eq | Neq
         | And | Or
