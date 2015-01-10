@@ -1,8 +1,12 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Imp.Env where
 
 import Prelude hiding (lookup)
+import Control.Exception
 import Data.IORef
 import Data.Map (Map)
+import Data.Typeable
 import qualified Data.Map as M
 
 import Imp.Syntax
@@ -28,6 +32,10 @@ type Env = IORef EnvList
 data EnvList = Top (Map Id Value)
              | Cons (Map Id Value) Env
 
+newtype ImpError = ImpError String deriving (Show, Typeable)
+
+instance Exception ImpError
+
 declare :: Env -> Id -> Value -> IO ()
 declare env ident value = do
     envList <- readIORef env
@@ -47,7 +55,7 @@ assign env ident value = do
     envList <- readIORef env
     case envList of
         Top m | M.member ident m -> writeIORef env (Top (M.insert ident value m))
-        Top _ -> error $ "non declared identifier '" ++ rawId ident ++ "'"
+        Top _ -> throwIO $ ImpError $ "non declared identifier '" ++ rawId ident ++ "'"
         Cons m e | M.member ident m -> writeIORef env (Cons (M.insert ident value m) e)
         Cons _ e -> assign e ident value
 

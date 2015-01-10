@@ -2,6 +2,7 @@ module Imp.Prim where
 
 import Prelude hiding (not, length, print)
 import qualified Prelude as P
+import Control.Exception (throwIO)
 import Data.IORef
 import Data.List (intercalate)
 import qualified Data.Map as M
@@ -25,7 +26,7 @@ primitives = map (\(s, f) -> (MkId s, PrimFunc f))
     , ("println", println)
     ]
   where
-    primError name args = error $ concat
+    primError name args = throwIO $ ImpError $ concat
         [ "invalid arguments: "
         , name
         , "(" ++ intercalate "," (map show args) ++ ")"

@@ -2,11 +2,13 @@
 
 module Main where
 
+import Control.Exception (catch)
 import qualified Data.Text.IO as T
 import System.Environment
 import System.IO
 
 import Imp.Parser
+import Imp.Env
 import Imp.Prim
 import Imp.Eval
 
@@ -39,7 +41,10 @@ repl = do
         code <- T.getLine
         case parseCode code of
             Left err -> print err >> loop env
-            Right prog -> run env prog >> loop env
+            Right prog -> do
+                catch (run env prog >> return ()) $ \e -> do
+                    putStrLn $ show (e :: ImpError)
+                loop env
 
 readAndRun :: FilePath -> IO ()
 readAndRun filepath = do

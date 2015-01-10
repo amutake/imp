@@ -2,6 +2,7 @@ module Imp.Eval where
 
 import Prelude hiding (lookup, id)
 import Control.Applicative ((<$>))
+import Control.Exception (throw, throwIO)
 import Control.Monad (when)
 
 import Imp.Syntax
@@ -20,13 +21,14 @@ eval env (Apply expr args) = do
     f <- eval env expr
     case f of
         Closure clsenv idents body -> do
-            when (length idents /= length args) $ error "the number of arguments is wrong"
+            when (length idents /= length args) $
+                throwIO $ ImpError "the number of arguments is wrong"
             values <- mapM (eval env) args
             clsenv' <- consNewFun clsenv (zip idents values)
             result <- run clsenv' body
             maybe (return Undefined) return result
         PrimFunc func -> mapM (eval env) args >>= func
-        _ -> error "it must be function"
+        _ -> throwIO $ ImpError "it must be function"
 eval env (Id id) = lookup env id
 
 opEval :: Op -> Value -> Value -> Value
@@ -37,7 +39,7 @@ opEval op value1 value2 = opEval' op value1 value2
     opEval' Eq (BoolVal b1) (BoolVal b2) = BoolVal (b1 == b2)
     opEval' Neq v1 v2 = case opEval' Eq v1 v2 of
         BoolVal b -> BoolVal (not b)
-        _ -> error "assert false: opEval' Neq"
+        _ -> throw $ ImpError "assert false: opEval' Neq"
     opEval' And (BoolVal b1) (BoolVal b2) = BoolVal (b1 && b2)
     opEval' Or (BoolVal b1) (BoolVal b2) = BoolVal (b1 || b2)
     opEval' Add (NumberVal n1) (NumberVal n2) = NumberVal (n1 + n2)
@@ -49,7 +51,7 @@ opEval op value1 value2 = opEval' op value1 value2
     opEval' Gt (NumberVal n1) (NumberVal n2) = BoolVal (n1 > n2)
     opEval' Ge (NumberVal n1) (NumberVal n2) = BoolVal (n1 >= n2)
     opEval' App (StringVal s1) (StringVal s2) = StringVal (s1 ++ s2)
-    opEval' _ _ _ = error $ concat
+    opEval' _ _ _ = throw $ ImpError $ concat
                    [ "wrong type of arguments: "
                    , show value1
                    , " " ++ show op ++ " "
@@ -70,7 +72,7 @@ step env (If expr trueBlock falseBlock) = do
     case cond of
         BoolVal True -> consNew env >>= flip run trueBlock
         BoolVal False -> consNew env >>= flip run falseBlock
-        _ -> error "condition of if statement must be evaluated to boolean value"
+        _ -> throwIO $ ImpError "condition of if statement must be evaluated to boolean value"
 step env (While expr block) = do
     cond <- eval env expr
     case cond of
@@ -78,7 +80,7 @@ step env (While expr block) = do
             maybeReturn <- run env block
             maybe (step env (While expr block)) (return . Just) maybeReturn
         BoolVal False -> return Nothing
-        _ -> error "condition of while statement must be evaluated to boolean value"
+        _ -> throwIO $ ImpError "condition of while statement must be evaluated to boolean value"
 step env (Return expr) = Just <$> eval env expr
 step env (Expr expr) = eval env expr >> return Nothing
 
