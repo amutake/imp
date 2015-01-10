@@ -1,7 +1,6 @@
 module Imp.Eval where
 
 import Prelude hiding (lookup, id)
-import Data.List (intercalate)
 import Control.Applicative ((<$>))
 import Control.Monad (when)
 
@@ -20,34 +19,15 @@ eval env (Op op e1 e2) = do
 eval env (Apply expr args) = do
     f <- eval env expr
     case f of
-        Closure env' idents body -> do
+        Closure clsenv idents body -> do
             when (length idents /= length args) $ error "the number of arguments is wrong"
-            args' <- mapM (eval env) args
-            funenv <- consNewFun env' (zip idents args')
-            result <- run funenv body
+            values <- mapM (eval env) args
+            clsenv' <- consNewFun clsenv (zip idents values)
+            result <- run clsenv' body
             maybe (return Undefined) return result
-        PrimFunc prim -> do
-            args' <- mapM (eval env) args
-            return (primEval prim args')
+        PrimFunc func -> mapM (eval env) args >>= func
         _ -> error "it must be function"
 eval env (Id id) = lookup env id
-
-primEval :: Prim -> [Value] -> Value
-primEval Not [BoolVal b] = BoolVal (not b)
-primEval NumToStr [NumberVal n] = StringVal (show n)
-primEval BoolToStr [BoolVal b] = StringVal (show (BoolVal b))
-primEval IsNum [NumberVal _] = BoolVal True
-primEval IsNum [_] = BoolVal False
-primEval IsBool [BoolVal _] = BoolVal True
-primEval IsBool [_] = BoolVal False
-primEval IsStr [StringVal _] = BoolVal True
-primEval IsStr [_] = BoolVal False
-primEval Length [StringVal s] = NumberVal (fromInteger (toInteger (length s)))
-primEval prim args = error $ concat
-                     [ "invalid arguments: "
-                     , show prim
-                     , "(" ++ intercalate "," (map show args) ++ ")"
-                     ]
 
 opEval :: Op -> Value -> Value -> Value
 opEval op value1 value2 = opEval' op value1 value2

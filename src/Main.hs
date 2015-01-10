@@ -7,7 +7,7 @@ import System.Environment
 import System.IO
 
 import Imp.Parser
-import Imp.Env
+import Imp.Prim
 import Imp.Eval
 
 main :: IO ()

@@ -11,7 +11,7 @@ data Value = NumberVal Double
            | StringVal String
            | BoolVal Bool
            | Closure Env [Id] [Statement]
-           | PrimFunc Prim
+           | PrimFunc ([Value] -> IO Value)
            | Undefined
 
 instance Show Value where
@@ -20,30 +20,13 @@ instance Show Value where
     show (BoolVal True) = "true"
     show (BoolVal False) = "false"
     show (Closure _ _ _) = "<closure>"
-    show (PrimFunc prim) = show prim
+    show (PrimFunc _) = "<primitive>"
     show Undefined = "<undefined>"
 
 type Env = IORef EnvList
 
 data EnvList = Top (Map Id Value)
              | Cons (Map Id Value) Env
-
-data Prim = Not
-          | NumToStr
-          | BoolToStr
-          | IsNum
-          | IsStr
-          | IsBool
-          | Length
-
-instance Show Prim where
-    show Not = "not"
-    show NumToStr = "number_to_string"
-    show BoolToStr = "boolean_to_string"
-    show IsNum = "number?"
-    show IsStr = "string?"
-    show IsBool = "boolean?"
-    show Length = "length"
 
 declare :: Env -> Id -> Value -> IO ()
 declare env ident value = do
@@ -64,19 +47,12 @@ assign env ident value = do
     envList <- readIORef env
     case envList of
         Top m | M.member ident m -> writeIORef env (Top (M.insert ident value m))
-        Top m -> case ident of
-                     MkId str -> error $ "non declared identifier '" ++ str ++ "'"
+        Top _ -> error $ "non declared identifier '" ++ rawId ident ++ "'"
         Cons m e | M.member ident m -> writeIORef env (Cons (M.insert ident value m) e)
-        Cons m e -> assign e ident value
+        Cons _ e -> assign e ident value
 
 consNew :: Env -> IO Env
 consNew = newIORef . Cons M.empty
 
 consNewFun :: Env -> [(Id, Value)] -> IO Env
 consNewFun env pairs = newIORef (Cons (M.fromList pairs) env)
-
-initialEnv :: IO Env
-initialEnv = newIORef (Top (M.fromList pairs))
-  where
-    allPrim = [Not, NumToStr, BoolToStr, IsNum, IsStr, IsBool, Length]
-    pairs = map (\p -> (MkId (show p), PrimFunc p)) allPrim

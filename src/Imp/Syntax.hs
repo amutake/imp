@@ -23,7 +23,7 @@ data Const = Number Double
            | String String
            deriving (Show)
 
-data Id = MkId String deriving (Eq, Ord, Show)
+newtype Id = MkId { rawId :: String } deriving (Eq, Ord, Show)
 
 data Op = Eq | Neq
         | And | Or
