@@ -12,10 +12,21 @@ import Imp.Eval
 
 main :: IO ()
 main = do
-    (com : _) <- getArgs
-    case com of
-        "repl" -> repl
-        filepath -> readAndRun filepath
+    args <- getArgs
+    case args of
+        ["repl"] -> repl
+        ["help"] -> help
+        [filepath] -> readAndRun filepath
+        _ -> help
+
+help :: IO ()
+help = putStr $ unlines
+    [ "Usage: imp [COMMAND or FILEPATH]"
+    , ""
+    , "Commands:"
+    , "  help      show this help text"
+    , "  repl      start REPL"
+    ]
 
 repl :: IO ()
 repl = do
