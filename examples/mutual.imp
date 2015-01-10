@@ -1,0 +1,16 @@
+var even = fun(x) {
+  if (x == 0) {
+    return true;
+  } else {
+    return odd(x - 1);
+  }
+};
+var odd = fun(x) {
+  if (x == 0) {
+    return false;
+  } else {
+    return even(x - 1);
+  }
+};
+print even(10);
+print odd(10);

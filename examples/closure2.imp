@@ -1,0 +1,12 @@
+var f = fun() {
+  return fun() {
+    print y;
+  };
+};
+var y = 0;
+var g = fun() {
+  var y = 10;
+  var f = f();
+  f();
+};
+g();

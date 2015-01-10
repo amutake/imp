@@ -1,11 +1,9 @@
-var x = 0;
-var z = 0;
-var f = fun(z) {
-  var x = 1;
-  y = 1;
+var makeAdder = fun(x) {
+  return fun(y) {
+    return x + y;
+  };
 };
-var y = 0;
-f(1);
-print x;
-print y;
-print z;
+var add5 = makeAdder(5);
+var add10 = makeAdder(10);
+print add5(10);
+print add10(7);
