@@ -5,7 +5,7 @@ This is a simple imperative language for learning/teaching Haskell.
 
 The [documents](./docs) are written in Japanese.
 
-The implementation is about 350 lines.
+The implementation is about 400 lines.
 
 Example
 -------
